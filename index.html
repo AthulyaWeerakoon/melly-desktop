@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#111827">
+    <title>Melly Reference Desktop</title>
+    <link rel="stylesheet" href="styles/desktop.css">
+    <script type="module" src="scripts/desktop.js"></script>
+  </head>
+  <body>
+    <div class="wallpaper" aria-hidden="true"></div>
+
+    <melly-panel aria-label="Desktop panel">
+      <p class="component-placeholder">Loading panel…</p>
+    </melly-panel>
+
+    <main class="desktop" aria-labelledby="welcome-title">
+      <section class="welcome-card">
+        <p class="eyebrow">Programmable by design</p>
+        <h1 id="welcome-title">Welcome to Melly</h1>
+        <p>
+          This reference shell is ordinary HTML, CSS, and JavaScript. Edit a file,
+          save it, and let the future Melly runtime reload the interface in place.
+        </p>
+        <button class="primary-action" type="button" data-open-launcher>
+          Open launcher
+          <kbd>Ctrl</kbd><span aria-hidden="true">+</span><kbd>Space</kbd>
+        </button>
+      </section>
+
+      <nav class="dock" aria-label="Favorite applications">
+        <button type="button" data-launch-app="terminal" aria-label="Launch Terminal" title="Terminal">›_</button>
+        <button type="button" data-launch-app="files" aria-label="Launch Files" title="Files">▰</button>
+        <button type="button" data-launch-app="browser" aria-label="Launch Browser" title="Browser">◎</button>
+        <button type="button" data-launch-app="editor" aria-label="Launch Editor" title="Editor">{ }</button>
+      </nav>
+    </main>
+
+    <melly-launcher hidden></melly-launcher>
+
+    <p class="toast" role="status" aria-live="polite" hidden></p>
+
+    <noscript>
+      <p class="noscript-message">This desktop needs JavaScript for interactive components.</p>
+    </noscript>
+  </body>
+</html>

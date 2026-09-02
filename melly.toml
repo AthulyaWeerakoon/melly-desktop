@@ -1,0 +1,23 @@
+manifest_version = 1
+
+[desktop]
+name = "Melly Reference Desktop"
+entry = "index.html"
+
+[[surface]]
+id = "desktop"
+source = "index.html"
+role = "background"
+anchor = ["top", "right", "bottom", "left"]
+keyboard = "on-demand"
+
+[permissions]
+"apps.launch" = true
+"windows.read" = true
+"windows.control" = false
+"workspaces.read" = true
+"workspaces.control" = true
+"audio.control" = false
+"system.power" = false
+"network.http" = false
+filesystem = []
