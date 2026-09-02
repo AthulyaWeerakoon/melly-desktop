@@ -1,8 +1,26 @@
 # Native JavaScript API (draft)
 
-Melly will expose host-neutral native operations on `globalThis.melly`. The runtime authorizes a call before routing it to a compositor adapter or Linux service. The API is intentionally semantic: desktop code never sends Sway commands or raw Wayland messages.
+Melly will expose host-neutral native operations on `globalThis.melly`. The runtime authorizes a call before routing it to a compositor adapter or Linux service. The API is semantic. Desktop code never sends Sway commands or raw Wayland messages.
 
 The browser preview implements only the subset used by the sample and does not provide real native authority.
+
+## Contract boundary
+
+The API covers only interface and desktop semantics Melly can honor according to a documented contract. It is not a promise of complete control over Linux, every Wayland protocol, or every host compositor. Public object identities, state, methods, events, and errors describe Melly domain concepts; backend objects remain implementation details.
+
+The eventual versioned API distinguishes a small minimum environment required of every supported Melly host from optional capabilities. Publish a semantic operation only after its minimum behavior, authorization, failure behavior, and backend-neutral data model are specified and tested. Hosts that cannot provide the minimum contract are unsupported.
+
+## Environment discovery
+
+The exact environment-discovery contract is not versioned yet. A future asynchronous operation such as `await melly.getEnvironment()` may identify the runtime and contract version, while `melly.addEventListener(...)` may provide EventTarget-style desktop events. These names are design direction, not implemented API.
+
+Desktop code must still feature-detect the specific operation it needs. An object named `melly` may be the browser preview mock, and a native environment may support only part of a draft API. Absence, an unsupported result, or a rejected native call must preserve the browser/degraded interface and report clearly that no native action occurred.
+
+## Application management boundary
+
+The host may run applications outside Melly's proxy. Initial X11 applications use the host compositor's XWayland path. Other unsupported or unsafe-to-mediate cases may use the same host-managed fallback. These applications are compatible but outside the Melly-managed support contract.
+
+The managed window API must not return a host-managed application as though all window operations and events are available. A future diagnostic or limited-observation API may describe such applications explicitly, but its reduced guarantees must be part of its type/state and capabilities. Runtime logs should record why a case bypassed Melly so compatibility gaps can be investigated.
 
 ## Capabilities
 
@@ -13,6 +31,8 @@ if (melly.capabilities.has("workspaces.control")) {
 ```
 
 Capability checks let a desktop hide or degrade features on hosts that cannot fulfil them. A reported host capability still requires repository permission.
+
+Capabilities represent optional behavior outside the required core. Desktop code uses semantic capabilities such as `outputs.scale` and does not use compositor names for ordinary interface logic. Host names, when exposed, are diagnostic information.
 
 ## Applications
 
