@@ -1,2 +1,15 @@
+# Editors
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# Local preview and diagnostic output
+*.log
+
+# Operating systems
 .DS_Store
 Thumbs.db
+
+# packages/ is intentionally tracked so deployed assets remain local.

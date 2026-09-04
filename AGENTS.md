@@ -4,7 +4,7 @@ These instructions apply to the entire `melly-desktop` repository.
 
 ## Purpose
 
-This is a portable desktop source package for Melly. It contains user-interface source and a draft manifest, not the Rust runtime, a compositor configuration, or a general website.
+This is a portable single-page desktop application for Melly. It contains user-interface source and a draft manifest, not the Rust runtime, a compositor configuration, or a general website.
 
 ## Required invariants
 
@@ -21,6 +21,8 @@ This is a portable desktop source package for Melly. It contains user-interface 
 11. Describe only behavior the runtime can guarantee. Experimental elements, methods, events, proxy behavior, and host integrations must remain clearly marked as drafts until implemented, tested, and versioned.
 12. Do not assume every application visible on the host is Melly-managed. X11 and other safely bypassed applications remain host-managed and usable but must not be presented as having Melly chrome, events, or control unless an explicit limited contract says so.
 13. Write repository documentation declaratively. State the design, contract, status, constraints, and validation criteria without persuasive comparisons, editorial opinions, or explanations of why a decision is superior.
+14. Keep the desktop a single-page application. `index.html` bootstraps one persistent document; navigation, view changes, and state transitions occur within that document rather than through page reloads.
+15. Use native ES modules and standards-based custom elements as the primary code boundaries. Give custom elements descriptive hyphenated tags and keep their modules easy to locate from the tag names so markup remains readable and implementation code remains navigable.
 
 ## Browser-first environment behavior
 
@@ -45,6 +47,7 @@ This is a portable desktop source package for Melly. It contains user-interface 
 - Preview through a local HTTP server; component modules fetch adjacent HTML and CSS files.
 - Keep all such fetches and module imports relative and local; verify new markup, styles, and scripts contain no remote resource URLs.
 - Keep each component's markup, styles, and behavior together under `components/<name>/`.
+- Define interface components as custom elements with descriptive tags, and keep each tag's registration in its corresponding component module.
 - Use custom events for loose component coordination and document new event names.
 - Avoid global CSS selectors for component internals; current components use Shadow DOM.
 - Escape or assign untrusted values with `textContent`; do not interpolate native data into `innerHTML`.
