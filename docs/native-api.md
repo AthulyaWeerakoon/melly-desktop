@@ -4,6 +4,8 @@ Melly will expose host-neutral native operations on `globalThis.melly`. The runt
 
 The browser preview implements only the subset used by the sample and does not provide real native authority.
 
+The native shell communicates with the Melly runtime through the `rusty-melly` Rust client SDK and a local Unix-domain socket. This transport is not part of the desktop-authoring contract. Desktop JavaScript must not open the socket, encode its wire protocol, or depend on its filesystem path; all desktop requests continue through `globalThis.melly`.
+
 ## Contract boundary
 
 The API covers only interface and desktop semantics Melly can honor according to a documented contract. It is not a promise of complete control over Linux, every Wayland protocol, or every host compositor. Public object identities, state, methods, events, and errors describe Melly domain concepts; backend objects remain implementation details.

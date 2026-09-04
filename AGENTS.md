@@ -23,6 +23,7 @@ This is a portable single-page desktop application for Melly. It contains user-i
 13. Write repository documentation declaratively. State the design, contract, status, constraints, and validation criteria without persuasive comparisons, editorial opinions, or explanations of why a decision is superior.
 14. Keep the desktop a single-page application. `index.html` bootstraps one persistent document; navigation, view changes, and state transitions occur within that document rather than through page reloads.
 15. Use native ES modules and standards-based custom elements as the primary code boundaries. Give custom elements descriptive hyphenated tags and keep their modules easy to locate from the tag names so markup remains readable and implementation code remains navigable.
+16. Never connect to Melly's Unix socket from desktop JavaScript or expose socket paths and wire messages in desktop source. The shell provides the authorized `melly.*` bridge; `rusty-melly` is for native Rust clients and shell implementation code.
 
 ## Browser-first environment behavior
 
