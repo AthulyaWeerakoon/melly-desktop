@@ -14,7 +14,7 @@ This is a portable single-page desktop application for Melly. It contains user-i
 4. Do not add permissions silently. Explain new authority in `melly.toml`, `docs/manifest.md`, and the change description.
 5. Keep every Melly implementation viewable as ordinary HTML, CSS, and JavaScript in a standard browser served from the local checkout. Native integration may enhance the implementation but must not be required to render, navigate, or understand its baseline interface.
 6. Make every deployed interface self-contained and offline-capable. Runtime-loaded online assets and remote source dependencies are strictly forbidden.
-7. Treat filesystem and network access as explicit capabilities. Asynchronous JavaScript follows the same offline-only dependency policy as synchronous code.
+7. Treat filesystem and network access as separate explicit capabilities. Permission-gated AJAX may exchange data with approved localhost or outbound endpoints, but it must not supply executable code, styles, markup, fonts, images, or other interface assets.
 8. Preserve keyboard operation, visible focus, semantic markup, readable contrast, reduced-motion preferences, and operable empty/error states.
 9. Keep the browser mock clearly separated from the native contract. Production behavior must not depend on mock-only properties.
 10. Keep visual structure, styling, bindings, and interaction behavior in HTML, CSS, and JavaScript. Package metadata may identify entry points and request authority, but it must not grow into a second desktop-authoring language.
@@ -24,6 +24,9 @@ This is a portable single-page desktop application for Melly. It contains user-i
 14. Keep the desktop a single-page application. `index.html` bootstraps one persistent document; navigation, view changes, and state transitions occur within that document rather than through page reloads.
 15. Use native ES modules and standards-based custom elements as the primary code boundaries. Give custom elements descriptive hyphenated tags and keep their modules easy to locate from the tag names so markup remains readable and implementation code remains navigable.
 16. Never connect to Melly's Unix socket from desktop JavaScript or expose socket paths and wire messages in desktop source. The shell provides the authorized `melly.*` bridge; `rusty-melly` is for native Rust clients and shell implementation code.
+17. Confine every document, module, worker, stylesheet, template, font, image, media file, and other loaded interface resource to the desktop root containing the manifest entry document. Reject absolute filesystem paths, `..` traversal, symlink escapes, and any resolution whose canonical target leaves that root.
+18. Desktop JavaScript may modify its DOM and in-memory state but must not alter desktop source, host files, processes, services, compositor state, or machine configuration except through an explicit, permission-checked `melly.*` operation.
+19. Treat localhost as a network boundary. A separately installed localhost service may accept authorized AJAX requests and modify files using its own operating-system identity and permissions; access to that service must never inherit, proxy, or imply the runtime's privileges.
 
 ## Browser-first environment behavior
 
@@ -34,13 +37,14 @@ This is a portable single-page desktop application for Melly. It contains user-i
 - Never replace the preview fallback with a blank state, uncaught exception, silent no-op, or direct compositor/shell workaround.
 - Keep native calls asynchronous where appropriate and handle their failures at the user-interface boundary. Browser rendering remains available before and without a successful native call.
 
-## Offline-only asset policy
+## Package-local assets and network data
 
 - Every file needed to render or operate the desktop must already exist in the repository or in a locally installed Melly package directory. Store vendored third-party material in a documented repository path such as `packages/<package>/`.
-- Any resource referenced by HTML `href` or `src`, JavaScript static or dynamic `import`, `fetch`, XHR, workers, CSS `@import`, `url()`, fonts, images, audio, or video must resolve to a local relative or approved package-local path.
+- Any resource referenced by HTML `href` or `src`, JavaScript static or dynamic `import`, workers, CSS `@import`, `url()`, fonts, images, audio, or video must resolve within the desktop root after canonical path resolution.
 - `http://`, `https://`, protocol-relative `//`, CDN, remote font, remote image, remote stylesheet, remote script, and remote module references are strictly forbidden in deployable HTML, CSS, JavaScript, and manifests. Do not add an online fallback for a missing local asset.
 - Download third-party assets during an explicit authoring/vendor step, place them locally, and record their source, version, and license. Normal preview, validation, deployment, startup, and use must not need that origin server.
-- Calls to the local `melly.*` bridge may be asynchronous. This exception does not permit fetching executable code, styles, fonts, icons, images, templates, or other interface assets from the network.
+- Permission-gated `fetch` and XHR may call approved localhost or outbound endpoints for data. Treat responses as untrusted data; do not execute them, import them, inject them as markup, or use them as interface assets. Localhost receives no automatic trust.
+- Calls to the local `melly.*` bridge may be asynchronous. This does not permit loading executable code, styles, fonts, icons, images, templates, or other interface assets from outside the desktop root.
 - Treat a remote asset reference as a deployment-blocking defect. Melly's future validator is expected to reject it; contributors and coding agents must enforce the rule before that validator exists.
 
 ## Working conventions

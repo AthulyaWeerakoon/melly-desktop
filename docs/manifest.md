@@ -23,7 +23,7 @@ entry = "index.html"
 ```
 
 - `name` is the human-readable package name.
-- `entry` is the local fallback/primary document and must remain inside the repository.
+- `entry` is the local fallback/primary document. Its containing directory is the desktop resource root, and the entry must resolve inside the installed desktop package.
 
 ## Surfaces
 
@@ -60,3 +60,9 @@ filesystem = []
 Permissions request authority; they do not grant it. Installation policy or the user must approve them. Setting a capability to `true` does not approve it.
 
 Unknown permissions and permission expansion fail validation or require explicit approval. Filesystem entries, when supported, use constrained paths and do not grant general shell access.
+
+`network.http` governs AJAX data requests, including requests to localhost. It does not allow remote or localhost-hosted scripts, modules, styles, markup, fonts, images, templates, or other interface assets. A future origin policy may narrow approved endpoints without changing the package-local asset rule.
+
+Network permission is not filesystem permission. A separate localhost service acts with its own operating-system identity and authorization when it changes a file in response to a request; it does not inherit Melly runtime authority.
+
+Manifest and surface source paths are resolved canonically beneath the desktop root. Validation rejects absolute paths, parent traversal, symlink escapes, and any alternate path that resolves outside the root.

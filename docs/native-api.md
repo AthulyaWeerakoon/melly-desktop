@@ -6,6 +6,10 @@ The browser preview implements only the subset used by the sample and does not p
 
 The native shell communicates with the Melly runtime through the `rusty-melly` Rust client SDK and a local Unix-domain socket. This transport is not part of the desktop-authoring contract. Desktop JavaScript must not open the socket, encode its wire protocol, or depend on its filesystem path; all desktop requests continue through `globalThis.melly`.
 
+Desktop JavaScript receives no ambient filesystem, process, service, compositor, or machine-configuration authority. It may change its DOM and use documented web APIs within the renderer sandbox. Every native effect outside that sandbox requires an explicit `melly.*` operation, declared permission, supported capability, and runtime authorization.
+
+Loaded interface resources are confined to the desktop root containing the entry document. Network-enabled `fetch` and XHR are data channels, not resource-loading or privilege channels. A localhost service remains a separate process acting with its own operating-system permissions; calling it does not lend it Melly's authority.
+
 ## Contract boundary
 
 The API covers only interface and desktop semantics Melly can honor according to a documented contract. It is not a promise of complete control over Linux, every Wayland protocol, or every host compositor. Public object identities, state, methods, events, and errors describe Melly domain concepts; backend objects remain implementation details.

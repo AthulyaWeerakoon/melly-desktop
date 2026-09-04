@@ -14,6 +14,18 @@ Melly guarantees programmability for the interface surface and semantic operatio
 
 Visual layout, styling, bindings, and interaction belong in HTML/CSS/JavaScript. Installation metadata and permission declarations may describe entry points and authority, but should never be required to express the look or ordinary behavior of the desktop.
 
+## Sandbox and desktop root
+
+The desktop root is the directory containing the manifest entry document, currently `index.html`. Every document, module, worker, stylesheet, component template, font, image, audio file, video file, and other interface resource must resolve to a regular package file inside that root. Absolute filesystem paths, parent traversal, symlinks escaping the root, and redirects or alternate path spellings that resolve outside it are invalid.
+
+Desktop JavaScript can change the rendered DOM and its own in-memory state. It cannot directly alter desktop source files, arbitrary host files, processes, services, compositor state, or machine configuration. Native effects are available only through documented, permission-checked `melly.*` operations. The runtime and renderer must keep filesystem, process, socket, and native-object handles out of the page unless a specific API contract grants constrained access.
+
+AJAX is a separate network capability. With explicit permission, a desktop may use `fetch` or XHR to exchange data with approved localhost or outbound endpoints. Network responses remain untrusted data and cannot become executable code, imported modules, styles, markup, fonts, images, templates, or other interface assets. The desktop must retain an offline-operable baseline.
+
+A separately installed localhost service may act on an authorized request and may modify desktop or other files according to that service's own operating-system identity and permissions. The request grants no Melly authority to the service, and the service does not run with or inherit privileges held by the Melly runtime. Localhost access is still permission-gated network access and must not be treated as trusted merely because it is local.
+
+Candidate validation and runtime resource loading must enforce the same canonical root boundary. Validation must cover parent traversal, absolute paths, symlink and hard-link handling, redirects, encoded path variants, race-resistant resolution, and every resource-loading mechanism supported by the embedded engine.
+
 ## Managed versus host-managed applications
 
 Not every runnable application is necessarily mediated by Melly. Native cases supported by the active runtime may be Melly-managed and participate in the documented window model. Legacy X11 applications—and any case the current runtime cannot proxy safely—may instead be routed directly to the host compositor and remain host-managed.

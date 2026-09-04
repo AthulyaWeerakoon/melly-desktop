@@ -55,6 +55,9 @@ melly-desktop/
 - Depend only on the documented minimum Melly contract; detect optional capabilities and degrade explicitly when an operation is unavailable.
 - Treat permissions as explicit, default-deny native authority.
 - Keep every runtime asset local; online asset and source dependencies are forbidden.
+- Resolve every loaded interface file beneath the desktop root containing `index.html`; traversal and symlink escapes are invalid.
+- Use permission-gated AJAX only for untrusted data exchange with approved localhost or outbound endpoints, never for interface assets or executable source.
+- Perform native or host-changing operations only through authorized `melly.*` APIs. A localhost helper acts solely with its own operating-system permissions.
 - Make changes accessible, keyboard-operable, and recoverable through Git.
 
 Start with the [authoring guide](docs/authoring.md), then see the draft [manifest](docs/manifest.md) and [native API](docs/native-api.md) references. Contributors and coding agents should also read [AGENTS.md](AGENTS.md).
