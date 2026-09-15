@@ -1,0 +1,104 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--melly-ink, #f8fafc);
+  font-family: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.desktop-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.empty-state {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  width: min(39rem, calc(100% - 2rem));
+  padding: clamp(1.5rem, 4vw, 2.8rem);
+  border: 1px solid var(--melly-border, rgb(255 255 255 / 14%));
+  border-radius: 1.7rem;
+  background: linear-gradient(145deg, rgb(15 23 42 / 76%), rgb(30 41 59 / 55%));
+  box-shadow: 0 1.5rem 5rem rgb(0 0 0 / 28%);
+  text-align: center;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(24px) saturate(130%);
+}
+
+.empty-state[hidden] {
+  display: none;
+}
+
+.eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--melly-accent, #67e8f9);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.introduction {
+  max-width: 31rem;
+  margin: 1.2rem auto 0;
+  color: var(--melly-muted, #cbd5e1);
+  line-height: 1.65;
+}
+
+.empty-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+
+button {
+  padding: 0.7rem 0.95rem;
+  border: 1px solid var(--melly-border, rgb(255 255 255 / 14%));
+  border-radius: 0.72rem;
+  background: rgb(255 255 255 / 7%);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+button:first-child {
+  border-color: var(--melly-accent-border, rgb(103 232 249 / 42%));
+  background: var(--melly-accent-soft, rgb(34 211 238 / 16%));
+}
+
+button:hover {
+  background: rgb(255 255 255 / 13%);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--melly-accent, #67e8f9);
+  outline-offset: 3px;
+}
+
+melly-window-manager {
+  position: absolute;
+  inset: 0 0 5.2rem;
+}
+
+@media (max-width: 600px) {
+  .empty-state {
+    border-radius: 1.15rem;
+  }
+}

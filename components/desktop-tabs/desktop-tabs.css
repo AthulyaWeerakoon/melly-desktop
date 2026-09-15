@@ -1,0 +1,86 @@
+:host {
+  display: block;
+  min-width: 0;
+  color: var(--melly-ink, #f8fafc);
+  font-family: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  color: inherit;
+  font: inherit;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--melly-accent, #67e8f9);
+  outline-offset: 1px;
+}
+
+.desktop-tabs,
+.tab-list {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tab-list {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-list button,
+.add-button {
+  min-height: 2.2rem;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.tab-list button {
+  min-width: 4.5rem;
+  padding: 0.38rem 0.72rem;
+  border-radius: 0.62rem;
+  color: var(--melly-muted, #cbd5e1);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.tab-list button:hover {
+  background: rgb(255 255 255 / 8%);
+}
+
+.tab-list button[aria-selected="true"] {
+  border-color: var(--melly-accent-border, rgb(103 232 249 / 42%));
+  background: var(--melly-accent-soft, rgb(34 211 238 / 16%));
+  color: var(--melly-ink, #f8fafc);
+}
+
+.add-button {
+  width: 2.2rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  color: var(--melly-muted, #cbd5e1);
+  font-size: 1.15rem;
+}
+
+.add-button:hover {
+  background: rgb(255 255 255 / 9%);
+}
+
+@media (max-width: 520px) {
+  .tab-list button {
+    min-width: 2.5rem;
+    max-width: 5rem;
+    overflow: hidden;
+    padding-inline: 0.5rem;
+    text-overflow: ellipsis;
+  }
+}

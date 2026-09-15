@@ -1,0 +1,23 @@
+:host {
+  position: absolute;
+  display: block;
+  inset: 0;
+  pointer-events: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.window-layer {
+  position: absolute;
+  inset: 0;
+}
+
+melly-app-window {
+  pointer-events: auto;
+}
+
+melly-app-window[hidden] {
+  display: none;
+}

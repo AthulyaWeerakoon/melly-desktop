@@ -44,15 +44,23 @@ Refresh the browser during this pre-runtime phase. The planned `melly dev` comma
 
 ## Component model
 
-Each component keeps markup, styling, and behavior under one directory. The reference components load adjacent HTML and CSS from an ES module and render them in Shadow DOM. This is a lightweight convention, not a required framework or a custom JSX toolchain.
+`index.html` contains one application root, `<melly-desktop-app>`. The bootstrap installs the browser-preview boundary when needed and imports the component modules. Page navigation, desktop switching, tool opening, and window changes happen without replacing the document.
+
+Each component keeps markup, styling, and behavior under one directory. The reference components load adjacent HTML and CSS from an ES module and render them in Shadow DOM. `scripts/core/component-loader.js` owns that local loading behavior so components do not duplicate it.
+
+The central store owns desktop tabs, tool-window records, focus, z-order, bounds, window mode, and interface preferences. Leaf components receive state snapshots and emit intent events; they do not mutate the shared model or call one another. `melly-desktop-app` handles those events, updates the store, and routes native application requests through `scripts/services/melly-client.js`.
 
 Components coordinate through documented DOM events:
 
-- `melly:launcher-open` asks the launcher to show;
-- `melly:notice` carries user-visible status text;
-- `melly:workspace-active` reports the active workspace in the preview mock.
+- `melly:desktop-activate` and `melly:desktop-add` change local desktop tabs;
+- `melly:window-focus`, `melly:window-close`, `melly:window-move`, and `melly:window-maximize-toggle` describe window intent;
+- `melly:tool-open` opens a built-in HTML tool;
+- `melly:application-launch` requests a native application through the client service;
+- `melly:launcher-open` and `melly:launcher-close` control the application launcher;
+- `melly:preference-update` changes validated in-memory interface preferences;
+- `melly:notice` carries user-visible status text.
 
-Native operations do not use these events. They call the permission-checked `melly.*` API described in `native-api.md`.
+These events are internal component intent, not native authority. The root coordinator performs native operations through the permission-checked `melly.*` boundary described in `native-api.md`.
 
 ## Adding a component
 
@@ -63,6 +71,10 @@ Native operations do not use these events. They call the permission-checked `mel
 5. Render native strings with `textContent`, not HTML interpolation.
 6. Handle missing capabilities and API failures with an operable, user-visible degraded state.
 7. Add any new native authority explicitly to `melly.toml` and document why it is needed.
+
+For a built-in windowed tool, also add one entry to `scripts/catalog/tools.js`. Its stable tool ID, custom-element tag, title, icon, preferred size, and instance policy let the window manager compose it without adding tool-specific branching to the application shell.
+
+Desktop tabs are local Melly interface state and are not assumed to equal Sway or host workspaces. Windows remain assigned to their desktop while another tab is active. A future native mapping must use the host-neutral workspace contract rather than parsing or exposing compositor identifiers.
 
 ## Browser preview versus Melly
 

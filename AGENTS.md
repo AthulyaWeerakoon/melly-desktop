@@ -53,9 +53,13 @@ This is a portable single-page desktop application for Melly. It contains user-i
 - Keep all such fetches and module imports relative and local; verify new markup, styles, and scripts contain no remote resource URLs.
 - Keep each component's markup, styles, and behavior together under `components/<name>/`.
 - Define interface components as custom elements with descriptive tags, and keep each tag's registration in its corresponding component module.
-- Use custom events for loose component coordination and document new event names.
+- Keep shared desktop, window, focus, and preference state in `scripts/state/desktop-store.js`. Components receive snapshots and must not mutate shared state directly.
+- Route component intent through the bubbling, composed custom events in `scripts/core/events.js`; the root `melly-desktop-app` coordinator applies state changes and calls native services.
+- Keep built-in tool metadata in `scripts/catalog/tools.js`. Tools render inside `melly-app-window` and must not call host APIs directly.
+- Treat desktop tabs as Melly interface state, distinct from host compositor workspaces. Any future mapping must use documented capabilities and opaque identifiers.
+- Document every new component event and state transition in `docs/spa-architecture.md`.
 - Avoid global CSS selectors for component internals; current components use Shadow DOM.
 - Escape or assign untrusted values with `textContent`; do not interpolate native data into `innerHTML`.
-- Run JavaScript syntax checks and exercise launcher keyboard behavior after UI changes.
+- Run JavaScript syntax checks, `node --test tests/*.test.mjs`, and exercise launcher and desktop-tab keyboard behavior after UI changes.
 
 The manifest and native API are drafts until the Rust runtime implements and versions them. Update their documentation alongside contract changes.

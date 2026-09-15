@@ -1,0 +1,61 @@
+<div class="settings-app">
+  <header class="settings-header">
+    <p class="eyebrow">Desktop preferences</p>
+    <h3>Settings</h3>
+    <p>These controls change only this in-memory HTML preview.</p>
+  </header>
+
+  <div class="settings-content">
+    <section aria-labelledby="appearance-heading">
+      <div class="section-copy">
+        <h4 id="appearance-heading">Appearance</h4>
+        <p>Choose the visual accents used by Melly-owned surfaces.</p>
+      </div>
+
+      <fieldset class="accent-options">
+        <legend>Accent color</legend>
+        <label data-accent="cyan">
+          <input type="radio" name="accent" value="cyan">
+          <span>Cyan</span>
+        </label>
+        <label data-accent="violet">
+          <input type="radio" name="accent" value="violet">
+          <span>Violet</span>
+        </label>
+        <label data-accent="coral">
+          <input type="radio" name="accent" value="coral">
+          <span>Coral</span>
+        </label>
+      </fieldset>
+    </section>
+
+    <section aria-labelledby="windows-heading">
+      <div class="section-copy">
+        <h4 id="windows-heading">Windows</h4>
+        <p>Adjust the reference desktop's HTML window presentation.</p>
+      </div>
+      <label class="toggle-row">
+        <span>
+          <strong>Compact title bars</strong>
+          <small>Use less vertical space in tool windows.</small>
+        </span>
+        <input type="checkbox" data-preference="compactWindows">
+      </label>
+      <label class="toggle-row">
+        <span>
+          <strong>Reduce interface motion</strong>
+          <small>Disable non-essential HTML interface transitions.</small>
+        </span>
+        <input type="checkbox" data-preference="reducedMotion">
+      </label>
+    </section>
+
+    <section aria-labelledby="system-heading">
+      <div class="section-copy">
+        <h4 id="system-heading">System</h4>
+        <p>Machine settings require future permission-checked <code>melly.*</code> capabilities.</p>
+      </div>
+      <button class="unavailable-action" type="button" disabled>Native system settings unavailable</button>
+    </section>
+  </div>
+</div>

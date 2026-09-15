@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  color: var(--melly-ink, #f8fafc);
+  font-family: inherit;
+}
+
+.toast {
+  max-width: min(28rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.78rem 1rem;
+  border: 1px solid var(--melly-border, rgb(255 255 255 / 14%));
+  border-radius: 0.8rem;
+  background: var(--melly-surface-solid, #111827);
+  box-shadow: 0 0.8rem 2.5rem rgb(0 0 0 / 34%);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.toast[hidden] {
+  display: none;
+}

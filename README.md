@@ -10,7 +10,7 @@ Initial X11 applications are host-managed by Sway/XWayland outside Melly's proxy
 
 This is an early, browser-previewable sample. The native runtime and its manifest loader are not implemented yet, so `melly.toml` and the `melly.*` API describe the intended contract and may evolve before the first compatibility release.
 
-The sample includes a panel, workspace controls, launcher, dock, status toast, and a small mock of the future native API. The mock makes browser preview possible; Melly will provide the real API in a native session.
+The sample is a component-driven single-page application with desktop tabs, a window layer, launcher, dock, status toast, Files and Settings tools, and a small mock of the future native API. The mock makes browser preview possible; Melly will provide the real API in a native session.
 
 ## Preview locally
 
@@ -22,29 +22,39 @@ python3 -m http.server 8080
 
 Then open <http://localhost:8080>. Direct `file://` preview is unsupported.
 
-Try `Super` or `Ctrl+Space` to open the launcher, type to filter applications, and press `Escape` to close it. Preview launches are simulated and shown in the status toast.
+Try `Super` or `Ctrl+Space` to open the launcher, open Files or Settings as HTML tool windows, drag or maximize a window, and switch desktop tabs from the panel. Preview native launches are simulated and shown in the status toast.
 
 ## Structure
 
 ```text
 melly-desktop/
 ├── melly.toml                  # draft shell manifest and permissions
-├── index.html                  # desktop entry document
-├── styles/desktop.css          # shared theme and desktop layout
-├── scripts/desktop.js          # component bootstrap and browser API mock
+├── index.html                  # minimal SPA entry document
+├── styles/desktop.css          # document-level reset and loading fallback
+├── scripts/
+│   ├── desktop.js              # custom-element bootstrap
+│   ├── catalog/tools.js        # built-in tool registry and dock catalog
+│   ├── core/                   # component loader and event vocabulary
+│   ├── services/melly-client.js# permission-aware native/preview boundary
+│   └── state/desktop-store.js  # desktops, windows, focus, and preferences
 ├── components/
+│   ├── desktop-app/            # root coordinator
+│   ├── desktop-tabs/           # local desktop navigation
+│   ├── desktop-surface/        # active desktop and empty state
+│   ├── window-manager/         # keyed window/tool composition
+│   ├── app-window/             # reusable window frame
+│   ├── file-explorer/          # explicitly preview-only Files tool
+│   ├── settings/               # in-memory desktop preferences
 │   ├── panel/
-│   │   ├── panel.html
-│   │   ├── panel.css
-│   │   └── panel.js
-│   └── launcher/
-│       ├── launcher.html
-│       ├── launcher.css
-│       └── launcher.js
+│   ├── dock/
+│   ├── launcher/
+│   └── toast/
+├── tests/desktop-store.test.mjs
 └── docs/
     ├── authoring.md
     ├── manifest.md
-    └── native-api.md
+    ├── native-api.md
+    └── spa-architecture.md
 ```
 
 ## Design constraints
@@ -60,4 +70,4 @@ melly-desktop/
 - Perform native or host-changing operations only through authorized `melly.*` APIs. A localhost helper acts solely with its own operating-system permissions.
 - Make changes accessible, keyboard-operable, and recoverable through Git.
 
-Start with the [authoring guide](docs/authoring.md), then see the draft [manifest](docs/manifest.md) and [native API](docs/native-api.md) references. Contributors and coding agents should also read [AGENTS.md](AGENTS.md).
+Start with the [SPA architecture](docs/spa-architecture.md) and [authoring guide](docs/authoring.md), then see the draft [manifest](docs/manifest.md) and [native API](docs/native-api.md) references. Contributors and coding agents should also read [AGENTS.md](AGENTS.md).

@@ -1,0 +1,89 @@
+:host {
+  display: block;
+  color: var(--melly-ink, #f8fafc);
+  font-family: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.dock,
+.items {
+  display: flex;
+  align-items: center;
+  gap: 0.48rem;
+}
+
+.dock {
+  padding: 0.5rem;
+  border: 1px solid var(--melly-border, rgb(255 255 255 / 14%));
+  border-radius: 1.15rem;
+  background: rgb(15 23 42 / 80%);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 28%);
+  backdrop-filter: blur(20px) saturate(140%);
+}
+
+button {
+  position: relative;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.82rem;
+  background: rgb(255 255 255 / 7%);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 820;
+  place-items: center;
+  transition: transform 140ms ease, background-color 140ms ease;
+}
+
+button:hover {
+  background: rgb(255 255 255 / 15%);
+  transform: translateY(-0.18rem);
+}
+
+button:focus-visible {
+  outline: 3px solid var(--melly-accent, #67e8f9);
+  outline-offset: 2px;
+}
+
+button[data-running="true"]::after {
+  position: absolute;
+  bottom: 0.2rem;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--melly-accent, #67e8f9);
+  content: "";
+}
+
+.divider {
+  width: 1px;
+  height: 2rem;
+  background: var(--melly-border, rgb(255 255 255 / 14%));
+}
+
+.launcher-button {
+  border-color: var(--melly-accent-border, rgb(103 232 249 / 42%));
+  background: var(--melly-accent-soft, rgb(34 211 238 / 16%));
+}
+
+@media (max-width: 460px) {
+  .dock {
+    gap: 0.32rem;
+    padding: 0.4rem;
+  }
+
+  .items {
+    gap: 0.32rem;
+  }
+
+  button {
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+}

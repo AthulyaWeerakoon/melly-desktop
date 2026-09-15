@@ -1,11 +1,15 @@
 <header class="panel">
-  <button class="launcher-button" type="button" aria-label="Open application launcher" title="Open launcher">
-    <span aria-hidden="true">M</span>
-  </button>
+  <div class="brand-group">
+    <button class="launcher-button" type="button" aria-label="Open application launcher" title="Open launcher">
+      <span aria-hidden="true">M</span>
+    </button>
+    <span class="brand">Melly</span>
+  </div>
 
-  <nav class="workspaces" aria-label="Workspaces"></nav>
+  <melly-desktop-tabs></melly-desktop-tabs>
 
   <div class="status-area">
+    <span class="environment"></span>
     <span class="status-dot" aria-hidden="true"></span>
     <time datetime="">--:--</time>
   </div>
