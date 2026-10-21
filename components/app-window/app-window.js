@@ -95,15 +95,28 @@ class MellyAppWindow extends HTMLElement {
     const startY = event.clientY;
     const original = this.#windowRecord.bounds;
     titlebar.setPointerCapture(event.pointerId);
+    let frame = 0;
+    let dragX = 0;
+    let dragY = 0;
 
     const move = (moveEvent) => {
-      this.style.setProperty("--drag-x", `${moveEvent.clientX - startX}px`);
-      this.style.setProperty("--drag-y", `${moveEvent.clientY - startY}px`);
+      dragX = moveEvent.clientX - startX;
+      dragY = moveEvent.clientY - startY;
+      if (!frame) {
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          this.style.setProperty("--drag-x", `${dragX}px`);
+          this.style.setProperty("--drag-y", `${dragY}px`);
+        });
+      }
     };
     const finish = (finishEvent) => {
       titlebar.removeEventListener("pointermove", move);
       titlebar.removeEventListener("pointerup", finish);
       titlebar.removeEventListener("pointercancel", finish);
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
       this.style.setProperty("--drag-x", "0px");
       this.style.setProperty("--drag-y", "0px");
       emitDesktopEvent(this, desktopEvents.moveWindow, {

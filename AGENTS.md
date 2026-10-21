@@ -9,7 +9,7 @@ This is a portable single-page desktop application for Melly. It contains user-i
 ## Required invariants
 
 1. Keep the baseline in plain HTML, CSS, and JavaScript with native ES modules. Do not require npm, a framework, JSX, a bundler, or generated assets for normal use.
-2. Route native intent only through the `melly.*` namespace. Do not call Sway IPC, compositor commands, D-Bus, or arbitrary shell commands from desktop code.
+2. Use standard web APIs for existing web concepts, `melly.*` for Melly's own environment, granted permissions, configuration, and runtime state, `desktop.*` for scene and client-surface interactions, and `system.*` for permission-gated operating-system services. Do not call Sway IPC, compositor commands, D-Bus, or arbitrary shell commands from desktop code.
 3. Check capabilities before exposing optional controls, and keep the desktop usable when an operation is unavailable.
 4. Do not add permissions silently. Explain new authority in `melly.toml`, `docs/manifest.md`, and the change description.
 5. Keep every Melly implementation viewable as ordinary HTML, CSS, and JavaScript in a standard browser served from the local checkout. Native integration may enhance the implementation but must not be required to render, navigate, or understand its baseline interface.
@@ -19,19 +19,21 @@ This is a portable single-page desktop application for Melly. It contains user-i
 9. Keep the browser mock clearly separated from the native contract. Production behavior must not depend on mock-only properties.
 10. Keep visual structure, styling, bindings, and interaction behavior in HTML, CSS, and JavaScript. Package metadata may identify entry points and request authority, but it must not grow into a second desktop-authoring language.
 11. Describe only behavior the runtime can guarantee. Experimental elements, methods, events, proxy behavior, and host integrations must remain clearly marked as drafts until implemented, tested, and versioned.
-12. Do not assume every application visible on the host is Melly-managed. X11 and other safely bypassed applications remain host-managed and usable but must not be presented as having Melly chrome, events, or control unless an explicit limited contract says so.
+12. Treat native Wayland client surfaces received through Melly as the foreign-application primitive. Do not route unsupported applications directly to the display host or claim X11/XWayland support.
 13. Write repository documentation declaratively. State the design, contract, status, constraints, and validation criteria without persuasive comparisons, editorial opinions, or explanations of why a decision is superior.
 14. Keep the desktop a single-page application. `index.html` bootstraps one persistent document; navigation, view changes, and state transitions occur within that document rather than through page reloads.
 15. Use native ES modules and standards-based custom elements as the primary code boundaries. Give custom elements descriptive hyphenated tags and keep their modules easy to locate from the tag names so markup remains readable and implementation code remains navigable.
-16. Never connect to Melly's Unix socket from desktop JavaScript or expose socket paths and wire messages in desktop source. The shell provides the authorized `melly.*` bridge; `rusty-melly` is for native Rust clients and shell implementation code.
+16. Never connect to Melly's Unix socket from desktop JavaScript or expose socket paths and wire messages in desktop source. The native desktop host provides the `melly.*`, `desktop.*`, and `system.*` bridges; `rusty-melly` is for native Rust clients, including the separate Melly command shell.
 17. Confine every document, module, worker, stylesheet, template, font, image, media file, and other loaded interface resource to the desktop root containing the manifest entry document. Reject absolute filesystem paths, `..` traversal, symlink escapes, and any resolution whose canonical target leaves that root.
-18. Desktop JavaScript may modify its DOM and in-memory state but must not alter desktop source, host files, processes, services, compositor state, or machine configuration except through an explicit, permission-checked `melly.*` operation.
+18. Desktop JavaScript may modify its DOM and in-memory state but must not alter desktop source, host files, processes, services, compositor state, or machine configuration except through an explicit authorized API. Operating-system effects use `system.*` and require a matching fine-grained manifest permission.
 19. Treat localhost as a network boundary. A separately installed localhost service may accept authorized AJAX requests and modify files using its own operating-system identity and permissions; access to that service must never inherit, proxy, or imply the runtime's privileges.
+20. Treat conventional windows, workspaces, title bars, docks, launchers, tiling, and floating as reference-desktop presentation policy rather than mandatory Melly Core primitives. Future native application content enters the scene through `<client-surface>`.
+21. Keep credentials, machine-specific configuration, private cycle goals, disposable prototypes, and unrelated test attempts outside this Git repository. Tracked `dev/` is reserved for maintained, portable, credential-free contributor tooling.
 
 ## Browser-first environment behavior
 
-- `globalThis.melly` is the canonical native bridge. Future contracts may add environment discovery such as `await melly.getEnvironment()` and EventTarget-style APIs such as `melly.addEventListener(...)`; those names remain drafts until `docs/native-api.md` ratifies them.
-- Feature-detect the bridge operation actually needed. Treat an object named `melly` as either the native bridge or the limited browser-preview mock until environment discovery confirms it.
+- `globalThis.melly` describes Melly itself; `globalThis.desktop` handles the scene and client surfaces; `globalThis.system` handles permission-gated operating-system services. A future contract may add environment discovery such as `await melly.getEnvironment()`; exact methods remain drafts until `docs/native-api.md` ratifies them.
+- Feature-detect the operation actually needed. Treat objects named `melly`, `desktop`, and `system` as possible browser-preview mocks until environment discovery confirms a native session.
 - Use the normal preview behavior whenever the bridge, environment-discovery method, capability, or requested operation is missing, unsupported, rejects, or reports a non-Melly environment.
 - A preview fallback must remain operable and must state clearly that no native action occurred. For example, an unavailable launch request should produce `Preview only: launching Terminal…` or equivalently explicit wording.
 - Never replace the preview fallback with a blank state, uncaught exception, silent no-op, or direct compositor/shell workaround.
@@ -44,7 +46,7 @@ This is a portable single-page desktop application for Melly. It contains user-i
 - `http://`, `https://`, protocol-relative `//`, CDN, remote font, remote image, remote stylesheet, remote script, and remote module references are strictly forbidden in deployable HTML, CSS, JavaScript, and manifests. Do not add an online fallback for a missing local asset.
 - Download third-party assets during an explicit authoring/vendor step, place them locally, and record their source, version, and license. Normal preview, validation, deployment, startup, and use must not need that origin server.
 - Permission-gated `fetch` and XHR may call approved localhost or outbound endpoints for data. Treat responses as untrusted data; do not execute them, import them, inject them as markup, or use them as interface assets. Localhost receives no automatic trust.
-- Calls to the local `melly.*` bridge may be asynchronous. This does not permit loading executable code, styles, fonts, icons, images, templates, or other interface assets from outside the desktop root.
+- Calls to local `melly.*`, `desktop.*`, or `system.*` bridges may be asynchronous. This does not permit loading executable code, styles, fonts, icons, images, templates, or other interface assets from outside the desktop root.
 - Treat a remote asset reference as a deployment-blocking defect. Melly's future validator is expected to reject it; contributors and coding agents must enforce the rule before that validator exists.
 
 ## Working conventions

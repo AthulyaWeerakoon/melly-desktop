@@ -1,4 +1,4 @@
-import { installBrowserPreview } from "./services/melly-client.js";
+import { installBrowserPreview } from "./services/system-client.js";
 
 installBrowserPreview();
 

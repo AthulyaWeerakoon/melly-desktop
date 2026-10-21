@@ -9,7 +9,7 @@ index.html
     |
 scripts/desktop.js
     |
-    +-- browser/native melly.* client boundary
+    +-- browser/native melly.*, desktop.*, system.* boundaries
     +-- component registrations
     |
 <melly-desktop-app>             root coordinator
@@ -29,13 +29,13 @@ scripts/desktop.js
 
 - `scripts/state/desktop-store.js` is the single owner of desktop tabs, active desktop, window records, focus, z-order, bounds, window mode, and in-memory preferences.
 - `scripts/catalog/tools.js` registers built-in tools and their custom-element tags. It is the extension point for windowed HTML tools.
-- `scripts/services/melly-client.js` is the only application service that reads `globalThis.melly`. It normalizes native application records, handles unavailable operations, and supplies the browser-preview implementation.
+- `scripts/services/system-client.js` is the system-application service and browser-preview installer. It reads `globalThis.system` for application inventory and launch; the preview installer creates separate `melly`, `desktop`, and `system` objects when none is native.
 - `scripts/core/events.js` defines the bubbling, composed intent-event vocabulary used across shadow boundaries.
 - `scripts/core/component-loader.js` loads each component's adjacent local HTML and CSS.
 - `melly-desktop-app` subscribes to the store, sends snapshots down to components, handles intent events, and invokes the client service.
 - Leaf components render assigned state and emit intent. They do not directly change shared state or call other components.
 
-## Desktop and window model
+## Reference desktop presentation model
 
 A desktop record contains an opaque local ID and display name. A window record contains:
 
@@ -45,6 +45,8 @@ mode, zIndex, bounds { x, y, width, height }
 ```
 
 Inactive desktops retain their window records. The window manager keeps keyed custom-element instances and hides those outside the active desktop, preserving tool-local DOM state while switching tabs.
+
+These records describe this reference desktop's HTML tools and presentation policy. They are not the Melly Core application model. Native application content enters the future Melly scene as client surfaces and may be wrapped in the same HTML window presentation, arranged in a grid, or organized by another desktop implementation.
 
 Desktop tabs are Melly interface state, not host-compositor workspace identifiers. A future host mapping is an adapter-backed capability and does not change the component or store boundary.
 
@@ -64,13 +66,13 @@ The window manager reads the registry, creates the tool element, and places it i
 
 ## Built-in tools
 
-Files uses an in-memory preview tree and explicitly reports that it has no host filesystem access. A future filesystem implementation uses a permission-checked `melly.*` API and preserves the same component boundary.
+Files uses an in-memory preview tree and explicitly reports that it has no host filesystem access. A future filesystem implementation uses permission-checked `system.files` operations and preserves the same component boundary.
 
 Settings changes only the SPA's in-memory appearance and window-presentation preferences. Machine and compositor settings remain unavailable until a documented native API, capability, and permission exist.
 
 ## Native applications
 
-Catalog entries with `kind: "native"` are passed to the Melly client service. The service feature-detects `melly.apps.launch`, reports native failures, and uses explicit preview-only wording when no native operation occurs. Native applications are not rendered as built-in HTML tools.
+Catalog entries with `kind: "native"` are passed to the system application service. The service feature-detects `system.apps.launch`, reports native failures, and uses explicit preview-only wording when no native operation occurs. A working runtime will expose the launched native Wayland application's client surface through `desktop.*` and `<client-surface>`; it is not rendered as a built-in HTML tool.
 
 ## Validation
 

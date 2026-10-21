@@ -7,18 +7,24 @@ const previewApplications = Object.freeze([
 let installedPreview = false;
 
 export function installBrowserPreview() {
-  if (globalThis.melly) {
+  if (globalThis.melly || globalThis.desktop || globalThis.system) {
     return false;
   }
 
   installedPreview = true;
-  globalThis.melly = Object.freeze({
+  globalThis.melly = Object.freeze({});
+  globalThis.desktop = Object.freeze({
+    capabilities: Object.freeze({
+      has: () => false,
+    }),
+  });
+  globalThis.system = Object.freeze({
     apps: Object.freeze({
       list: async () => structuredClone(previewApplications),
       launch: async () => undefined,
     }),
     capabilities: Object.freeze({
-      has: (capability) => ["apps.launch"].includes(capability),
+      has: (capability) => ["apps.list", "apps.launch"].includes(capability),
     }),
   });
   return true;
@@ -39,26 +45,26 @@ function normalizeApplication(application) {
   };
 }
 
-export class MellyClient {
-  #api;
+export class SystemClient {
+  #system;
   #preview;
 
-  constructor(api = globalThis.melly, preview = installedPreview) {
-    this.#api = api;
+  constructor(systemApi = globalThis.system, preview = installedPreview) {
+    this.#system = systemApi;
     this.#preview = preview;
   }
 
   get environmentLabel() {
-    return this.#preview ? "Browser preview" : "Melly session";
+    return this.#preview ? "Native actions preview-only" : "Melly session";
   }
 
   async listApplications() {
-    if (typeof this.#api?.apps?.list !== "function") {
-      return structuredClone(previewApplications).map(normalizeApplication);
+    if (typeof this.#system?.apps?.list !== "function") {
+      return this.#preview ? structuredClone(previewApplications).map(normalizeApplication) : [];
     }
 
     try {
-      const applications = await this.#api.apps.list();
+      const applications = await this.#system.apps.list();
       return Array.isArray(applications)
         ? applications.map(normalizeApplication).filter(Boolean)
         : [];
@@ -69,13 +75,13 @@ export class MellyClient {
 
   async launchApplication(application) {
     const name = application.name ?? application.id;
-    const canLaunch = this.#api?.capabilities?.has?.("apps.launch") === true;
-    if (!canLaunch || typeof this.#api?.apps?.launch !== "function") {
+    const canLaunch = this.#system?.capabilities?.has?.("apps.launch") === true;
+    if (!canLaunch || typeof this.#system?.apps?.launch !== "function") {
       return `Preview only: launching ${name} is unavailable.`;
     }
 
     try {
-      await this.#api.apps.launch(application.id);
+      await this.#system.apps.launch(application.id);
       return this.#preview
         ? `Preview only: launching ${name}.`
         : `Launch requested: ${name}.`;
@@ -86,6 +92,6 @@ export class MellyClient {
   }
 }
 
-export function createMellyClient() {
-  return new MellyClient();
+export function createSystemClient() {
+  return new SystemClient();
 }

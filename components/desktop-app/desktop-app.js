@@ -1,11 +1,11 @@
 import { createLauncherCatalog, dockItems, getTool } from "../../scripts/catalog/tools.js";
 import { loadComponent, showComponentError } from "../../scripts/core/component-loader.js";
 import { desktopEvents } from "../../scripts/core/events.js";
-import { createMellyClient } from "../../scripts/services/melly-client.js";
+import { createSystemClient } from "../../scripts/services/system-client.js";
 import { desktopStore } from "../../scripts/state/desktop-store.js";
 
 class MellyDesktopApp extends HTMLElement {
-  #client = createMellyClient();
+  #client = createSystemClient();
   #catalog = [];
   #initializePromise;
   #eventController;
@@ -98,8 +98,8 @@ class MellyDesktopApp extends HTMLElement {
     window.addEventListener("keydown", (event) => this.#handleGlobalShortcut(event), options);
 
     this.#unsubscribe = desktopStore.subscribe((state) => this.#render(state));
-    if (this.#client.environmentLabel === "Browser preview") {
-      this.#showNotice("Browser preview is using the local melly.* mock API.");
+    if (this.#client.environmentLabel === "Native actions preview-only") {
+      this.#showNotice("Native API unavailable: actions are preview-only.");
     }
   }
 

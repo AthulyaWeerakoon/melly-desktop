@@ -2,7 +2,7 @@
 
 ## Customization contract
 
-Melly desktop authors work in HTML, CSS, and JavaScript. Standard DOM, event, module, form, accessibility, and styling behavior should remain recognizable wherever the embedded engine supports it. Melly-specific desktop behavior should appear as a small, host-neutral extension vocabulary—semantic `melly.*` APIs and, where justified, HTML elements, attributes, CSS semantics, or events.
+Melly desktop authors work in HTML, CSS, and JavaScript. Standard DOM, event, module, form, accessibility, networking, storage, and styling behavior should remain recognizable wherever the embedded engine supports it. `melly.*` reports and controls Melly's own environment, granted permissions, configuration, and runtime state. `desktop.*` handles scene and client-surface behavior alongside documented HTML elements, attributes, CSS semantics, and events. Operating-system services use the separate permission-gated `system.*` namespace.
 
 Melly guarantees programmability for the interface surface and semantic operations in its contract. Direct control over other compositor, application, device, and Linux behavior is outside the contract. Desktop code must:
 
@@ -18,7 +18,7 @@ Visual layout, styling, bindings, and interaction belong in HTML/CSS/JavaScript.
 
 The desktop root is the directory containing the manifest entry document, currently `index.html`. Every document, module, worker, stylesheet, component template, font, image, audio file, video file, and other interface resource must resolve to a regular package file inside that root. Absolute filesystem paths, parent traversal, symlinks escaping the root, and redirects or alternate path spellings that resolve outside it are invalid.
 
-Desktop JavaScript can change the rendered DOM and its own in-memory state. It cannot directly alter desktop source files, arbitrary host files, processes, services, compositor state, or machine configuration. Native effects are available only through documented, permission-checked `melly.*` operations. The runtime and renderer must keep filesystem, process, socket, and native-object handles out of the page unless a specific API contract grants constrained access.
+Desktop JavaScript can change the rendered DOM and its own in-memory state. It cannot directly alter desktop source files, arbitrary host files, processes, services, compositor state, or machine configuration. Native effects are available only through documented operations in the appropriate namespace. Every `system.*` authority requires a fine-grained manifest permission. The runtime and renderer keep filesystem, process, socket, and native-object handles out of the page unless a specific API contract grants constrained access.
 
 AJAX is a separate network capability. With explicit permission, a desktop may use `fetch` or XHR to exchange data with approved localhost or outbound endpoints. Network responses remain untrusted data and cannot become executable code, imported modules, styles, markup, fonts, images, templates, or other interface assets. The desktop must retain an offline-operable baseline.
 
@@ -26,11 +26,11 @@ A separately installed localhost service may act on an authorized request and ma
 
 Candidate validation and runtime resource loading must enforce the same canonical root boundary. Validation must cover parent traversal, absolute paths, symlink and hard-link handling, redirects, encoded path variants, race-resistant resolution, and every resource-loading mechanism supported by the embedded engine.
 
-## Managed versus host-managed applications
+## Native application surfaces
 
-Not every runnable application is necessarily mediated by Melly. Native cases supported by the active runtime may be Melly-managed and participate in the documented window model. Legacy X11 applications—and any case the current runtime cannot proxy safely—may instead be routed directly to the host compositor and remain host-managed.
+Supported native Wayland applications connect to Melly and contribute application-owned client surfaces to the desktop scene. A client surface supplies pixels and protocol state; the desktop decides how it is organized and decorated using HTML/CSS/JavaScript. The `<client-surface>` element marks the region where Melly maps that application content.
 
-Host-managed means allowed and usable where the host supports it, not supported by the full Melly contract. Do not assume such an application receives HTML window chrome, appears in managed window collections, emits Melly lifecycle events, or accepts Melly window operations. If a future API exposes host-managed applications diagnostically, feature-detect that limited contract and label unavailable controls honestly.
+Unsupported application protocols are not silently routed to the display host. X11 and XWayland are outside the current supported architecture. Conventional window chrome, maximize presentation, tiling, floating, and workspace organization remain desktop policy; protocol lifecycle, application buffers, configure cycles, focus, and input translation remain Melly Core responsibilities.
 
 ## Development loop
 
@@ -48,7 +48,7 @@ Refresh the browser during this pre-runtime phase. The planned `melly dev` comma
 
 Each component keeps markup, styling, and behavior under one directory. The reference components load adjacent HTML and CSS from an ES module and render them in Shadow DOM. `scripts/core/component-loader.js` owns that local loading behavior so components do not duplicate it.
 
-The central store owns desktop tabs, tool-window records, focus, z-order, bounds, window mode, and interface preferences. Leaf components receive state snapshots and emit intent events; they do not mutate the shared model or call one another. `melly-desktop-app` handles those events, updates the store, and routes native application requests through `scripts/services/melly-client.js`.
+The central store owns desktop tabs, tool-window records, focus, z-order, bounds, window mode, and interface preferences. Leaf components receive state snapshots and emit intent events; they do not mutate the shared model or call one another. `melly-desktop-app` handles those events, updates the store, and routes native application requests through `scripts/services/system-client.js`.
 
 Components coordinate through documented DOM events:
 
@@ -60,7 +60,7 @@ Components coordinate through documented DOM events:
 - `melly:preference-update` changes validated in-memory interface preferences;
 - `melly:notice` carries user-visible status text.
 
-These events are internal component intent, not native authority. The root coordinator performs native operations through the permission-checked `melly.*` boundary described in `native-api.md`.
+These events are internal component intent, not native authority. The root coordinator uses `desktop.*` for native scene interactions, `system.*` for authorized operating-system services, and `melly.*` only for Melly's own state and configuration, as described in `native-api.md`.
 
 ## Adding a component
 
@@ -74,13 +74,13 @@ These events are internal component intent, not native authority. The root coord
 
 For a built-in windowed tool, also add one entry to `scripts/catalog/tools.js`. Its stable tool ID, custom-element tag, title, icon, preferred size, and instance policy let the window manager compose it without adding tool-specific branching to the application shell.
 
-Desktop tabs are local Melly interface state and are not assumed to equal Sway or host workspaces. Windows remain assigned to their desktop while another tab is active. A future native mapping must use the host-neutral workspace contract rather than parsing or exposing compositor identifiers.
+Desktop tabs and HTML tool windows are local reference-desktop state, not host-compositor workspaces or mandatory Melly Core objects. Tool windows remain assigned to their desktop while another tab is active. Native applications will be represented by client surfaces without exposing display-host identifiers.
 
 ## Browser preview versus Melly
 
-The preview installs a small `globalThis.melly` mock only when a native object is absent. It simulates app launches and workspace activation. Do not branch production UI behavior on mock internals: code against the documented API and capability checks so the same source can run under the native runtime.
+The preview installs small `globalThis.melly`, `globalThis.desktop`, and `globalThis.system` mocks only when native objects are absent. It simulates the operations used by the reference desktop without native authority. Do not branch production UI behavior on mock internals: code against the documented API and capability checks so the same source can run under the native runtime.
 
-An object named `melly` may be the native bridge or the browser-preview mock. A future versioned environment-discovery method is used alongside operation-level feature detection. Until then, missing methods, absent capabilities, and structured unsupported errors lead to explicit preview/degraded behavior.
+Objects named `melly`, `desktop`, and `system` may be native bridges or browser-preview mocks. A future versioned environment-discovery method is used alongside operation-level feature detection. Until then, missing methods, absent capabilities, and structured unsupported errors lead to explicit preview/degraded behavior.
 
 ## Git activation model
 
